@@ -15,11 +15,12 @@ export class TestServer {
     })
     addReflection(
       this.server,
-      join(__dirname, '../../../dist/proto/route_guide.bin')
+      join(__dirname, '../../../dist/proto/route_guide.bin'),
+      ['routeguide.RouteGuide']
     )
     return new Promise<void>(resolve => {
       this.server.bindAsync(
-        '0.0.0.0:50051',
+        '0.0.0.0:50052',
         ServerCredentials.createInsecure(),
         () => {
           this.server.start()
@@ -42,7 +43,7 @@ export class GrpcCli {
     longListing: boolean
   ) => {
     const { stdout, stderr, exitCode } = await exec(
-      `grpc_cli ${command} localhost:50051 ${argument} ${
+      `docker run --rm hatena/grpc_cli ${command} host.docker.internal:50052 ${argument} ${
         longListing ? '-l' : ''
       }`
     )

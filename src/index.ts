@@ -155,10 +155,13 @@ const NOT_IMPLEMENTED_CALL_ERROR =
 type ServerLike = { addService: (service: any, implementation: any) => any }
 export const addReflection = (
   server: ServerLike,
-  fileDescriptorSetPath: string
+  fileDescriptorSetPath: string,
+  serviceNames: string[] = []
 ) => {
   const reflectionHandler = new ReflectionHandler(fileDescriptorSetPath)
-  const serviceNames = reflectionHandler.getServiceNames()
+  if (serviceNames.length === 0) {
+    serviceNames = reflectionHandler.getServiceNames()
+  }
 
   const handleRequest = (request: ServerReflectionRequest) => {
     switch (request.getMessageRequestCase()) {
