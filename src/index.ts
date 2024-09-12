@@ -23,10 +23,33 @@ import { readFileSync } from 'fs'
 
 class ReflectionHandler {
   private fileDescriptorSet: FileDescriptorSet
+
+  static fromFileDescriptorSets(fileDescriptorSetPaths: string[]): ReflectionHandler {
+    const rf = new ReflectionHandler(fileDescriptorSetPaths[0])
+    for (const path of fileDescriptorSetPaths.slice(1)) {
+      rf.addFile(
+        path
+      )
+    }
+    return rf
+  }
+
   constructor(fileDescriptorSetPath: string) {
     this.fileDescriptorSet = FileDescriptorSet.deserializeBinary(
       readFileSync(fileDescriptorSetPath)
     )
+  }
+
+  public addFile(fileDescriptorSetPath: string) {
+    const fileDescriptorSet = FileDescriptorSet.deserializeBinary(
+      readFileSync(fileDescriptorSetPath)
+    )
+    for (const file of fileDescriptorSet.getFileList()) {
+      if (this.fileDescriptorSet.getFileList().find(f => f.getName() === file.getName())) {
+        continue
+      }
+      this.fileDescriptorSet.addFile(file)
+    }
   }
 
   public fileBySymbol(symbol: string) {
@@ -155,10 +178,10 @@ const NOT_IMPLEMENTED_CALL_ERROR =
 type ServerLike = { addService: (service: any, implementation: any) => any }
 export const addReflection = (
   server: ServerLike,
-  fileDescriptorSetPath: string,
+  fileDescriptorSetPaths: string[],
   serviceNames: string[] = []
 ) => {
-  const reflectionHandler = new ReflectionHandler(fileDescriptorSetPath)
+  const reflectionHandler = ReflectionHandler.fromFileDescriptorSets(fileDescriptorSetPaths)
   if (serviceNames.length === 0) {
     serviceNames = reflectionHandler.getServiceNames()
   }

@@ -15,8 +15,8 @@ export class TestServer {
     })
     addReflection(
       this.server,
-      join(__dirname, '../../../dist/proto/route_guide.bin'),
-      ['routeguide.RouteGuide']
+      [join(__dirname, '../../../dist/proto/route_guide.bin'), join(__dirname, '../../../dist/proto/other.bin')],
+      ['routeguide.RouteGuide', 'other.OtherService']
     )
     return new Promise<void>(resolve => {
       this.server.bindAsync(
